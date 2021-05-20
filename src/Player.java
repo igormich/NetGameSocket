@@ -28,7 +28,6 @@ public class Player extends GameObject {
 
     @Override
     public void step(float delhaTime) {
-        System.out.println(x);
         shotDelay -= delhaTime;
         lastMoveKeys.stream().skip(Math.max(0,lastMoveKeys.size() - 1)).findFirst().ifPresent(dir -> {
             direction = dir;

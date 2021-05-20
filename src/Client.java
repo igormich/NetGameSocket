@@ -57,6 +57,7 @@ public class Client {
             while (true) {
                 try {
                     data = (List<GameObject>) ois.readObject();
+                    data.stream().map(o->o.x).forEach(System.out::println);
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;

@@ -15,9 +15,9 @@ public class Game {
     );
 
 
-    private List<GameObject> allObjects = new ArrayList();
-    private List<GameObject> addObjects = new ArrayList();
-    private List<GameObject> removeObjects = new ArrayList();
+    volatile private List<GameObject> allObjects = new ArrayList();
+    volatile private List<GameObject> addObjects = new ArrayList();
+    volatile private List<GameObject> removeObjects = new ArrayList();
 
     public Game() {
         allObjects.add(new Tree(100f,100f));

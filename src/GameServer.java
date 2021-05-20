@@ -67,8 +67,16 @@ public class GameServer {
                     reader.setDaemon(true);
                     reader.start();
                     while (true) {
-                        oos.writeUnshared(game.getAllObject());
+                        var data = game.getAllObject();
+                        data.stream().map(o->o.x).forEach(System.out::println);
+                        oos.writeObject(data);
                         oos.flush();
+                        oos.reset();
+                        try {
+                            Thread.sleep(16);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
             } catch(Exception e){
                 long finalId = id;
