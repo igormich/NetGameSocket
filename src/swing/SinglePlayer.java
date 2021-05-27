@@ -1,12 +1,15 @@
+package swing;
+
+import game.GameImpl;
+import game.Player;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.rmi.RemoteException;
+
 
 public class SinglePlayer {
 
@@ -17,10 +20,16 @@ public class SinglePlayer {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(640, 480);
         frame.setLocationRelativeTo(null);
-        var game = new Game();
+        var game = new GameImpl();
         Player activePlayer = new Player(game);
         game.add(activePlayer);
-        var gamePainter = new GamePainter(game::getAllObject, activePlayer.getID());
+        var gamePainter = new GamePainter(()->{
+            try {
+                return game.getAllObject();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        }, activePlayer.getID());
         frame.add(new JComponent() {
             @Override
             public void paint(Graphics g) {
@@ -33,12 +42,20 @@ public class SinglePlayer {
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                game.keyPressed(e.getKeyCode(), activePlayer.getID());
+                try {
+                    game.keyPressed(e.getKeyCode(), activePlayer.getID());
+                } catch (RemoteException remoteException) {
+                    remoteException.printStackTrace();
+                }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                game.keyReleased(e.getKeyCode(), activePlayer.getID());
+                try {
+                    game.keyReleased(e.getKeyCode(), activePlayer.getID());
+                } catch (RemoteException remoteException) {
+                    remoteException.printStackTrace();
+                }
             }
         });
 

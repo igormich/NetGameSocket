@@ -1,26 +1,30 @@
+package net;
+
+import game.Game;
+import game.GameObject;
+import swing.GamePainter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.util.Collections;
 import java.util.List;
 
 public class Client {
-    volatile private static List<GameObject> data= Collections.emptyList();
-    public static void main() throws IOException {
+     private static List<GameObject> data= Collections.emptyList();
+    public static void main() throws IOException, NotBoundException {
         var frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(640, 480);
         frame.setLocationRelativeTo(null);
-        Socket s = new Socket("localhost", 666);
-        var oos = new ObjectOutputStream(s.getOutputStream());
-        oos.flush();
-        var ois = new ObjectInputStream(s.getInputStream());
-        var id = ois.readLong();
+
+        String objectName = Common.SERVICE_PATH;
+        Game game = (Game) Naming.lookup(objectName);
+        var id = game.newUser();
         var gamePainter = new GamePainter(()->data, id);
         frame.add(new JComponent() {
             @Override
@@ -36,8 +40,7 @@ public class Client {
             public void keyPressed(KeyEvent e) {
                 try {
 
-                    oos.writeInt(e.getKeyCode());
-                    oos.flush();
+                    game.keyPressed(e.getKeyCode(), id);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -46,8 +49,7 @@ public class Client {
             @Override
             public void keyReleased(KeyEvent e) {
                 try {
-                    oos.writeInt(-e.getKeyCode());
-                    oos.flush();
+                    game.keyReleased(e.getKeyCode(), id);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -56,17 +58,11 @@ public class Client {
         var net = new Thread(() -> {
             while (true) {
                 try {
-                    data = (List<GameObject>) ois.readObject();
-                    data.stream().map(o->o.x).forEach(System.out::println);
+                    data = game.getAllObject();
+                    Thread.sleep(16);
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                try {
-                    Thread.sleep(16);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -77,7 +73,7 @@ public class Client {
         frame.setVisible(true);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NotBoundException {
         main();
     }
 }

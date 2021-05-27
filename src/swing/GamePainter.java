@@ -1,8 +1,16 @@
+package swing;
+
+import game.Bullet;
+import game.GameObject;
+import game.Player;
+import game.Tree;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
@@ -22,11 +30,13 @@ public class GamePainter {
 
     public void paint(Graphics2D g) {
         try {
-            var activePlayer = dataSource.get().stream().filter(o->o.getID()==id).findFirst().get();
+            var allData = dataSource.get();
+            var activePlayer = allData.stream().filter(o->o.getID()==id).findFirst().get();
             g.translate(-activePlayer.getX(), -activePlayer.getY());
             var screenSize = g.getClipBounds();
             g.translate(screenSize.width / 2, screenSize.height / 2);
-            dataSource.get().forEach(o -> paint(g, o));
+            allData.sort(Comparator.comparingInt(GameObject::getZ));
+            allData.forEach(o -> paint(g, o));
         }catch (NoSuchElementException e) {
             return;
         }
