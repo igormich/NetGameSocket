@@ -1,13 +1,16 @@
+package game;
+
 import java.awt.*;
 import java.io.Serializable;
 
 abstract public class GameObject implements Serializable {
     protected final long id = (long) (Math.random() * Long.MAX_VALUE);
-    volatile protected float x = 0;
-    volatile protected float y = 0;
-    volatile protected float sx = 0;
-    volatile protected float sy = 0;
-    volatile protected float size = 32;
+    protected float x = 0;
+    protected float y = 0;
+    protected int z = 0;
+    protected float sx = 0;
+    protected float sy = 0;
+    protected float size = 32;
 
     public float getX() {
         return x;
@@ -17,13 +20,17 @@ abstract public class GameObject implements Serializable {
         return y;
     }
 
+    public int getZ() {
+        return z;
+    }
+
     public void step(float delhaTime) {
         x += sx;
         y += sy;
     }
 
     public Rectangle asRectangle() {
-        return new Rectangle((int) (x - size / 2), (int) (y - size / 2), (int)size,(int)size);
+        return new Rectangle((int) (x - size / 2), (int) (y - size / 2), (int) size, (int) size);
     }
 
     public boolean checkCollision(GameObject other) {
@@ -36,5 +43,22 @@ abstract public class GameObject implements Serializable {
 
     public long getID() {
         return id;
+    }
+
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void onCollision(GameObject other, Game game) {
+
+    }
+
+    public float getSize() {
+        return size;
     }
 }

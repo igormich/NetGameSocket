@@ -1,14 +1,16 @@
+package game;
+
 import java.util.LinkedHashSet;
 
 public class Player extends GameObject {
 
-    volatile private float speed = 100f;
-    volatile private float shotDelay = 0;
-    volatile private float shotSpeed = 0.5f;
+    private float speed = 100f;
+    private float shotDelay = 0;
+    private float shotSpeed = 0.5f;
     transient private LinkedHashSet<MoveDirections> lastMoveKeys = new LinkedHashSet<>();
     transient private boolean shot = false;
     transient private final Game game;
-    volatile private MoveDirections direction = MoveDirections.UP;
+    private MoveDirections direction = MoveDirections.UP;
 
     public Player(Game game) {
         this.game = game;
@@ -29,15 +31,21 @@ public class Player extends GameObject {
     @Override
     public void step(float delhaTime) {
         shotDelay -= delhaTime;
-        lastMoveKeys.stream().skip(Math.max(0,lastMoveKeys.size() - 1)).findFirst().ifPresent(dir -> {
+
+        var p = new Point2F(x, y);
+        lastMoveKeys.stream().skip(Math.max(0, lastMoveKeys.size() - 1)).findFirst().ifPresent(dir -> {
             direction = dir;
             switch (dir) {
-                case UP -> y -= delhaTime * speed;
-                case DOWN -> y += delhaTime * speed;
-                case LEFT -> x -= delhaTime * speed;
-                case RIGHT -> x += delhaTime * speed;
+                case UP -> p.y = y - delhaTime * speed;
+                case DOWN -> p.y = y + delhaTime * speed;
+                case LEFT -> p.x = x - delhaTime * speed;
+                case RIGHT -> p.x = x + delhaTime * speed;
             }
         });
+        if (game.canMoveTo(this, p)) {
+            x = p.x;
+            y = p.y;
+        }
         if (shot && (shotDelay < 0)) {
             shotDelay = shotSpeed;
             var sx = 10 * direction.getX();
@@ -48,5 +56,11 @@ public class Player extends GameObject {
 
     public MoveDirections getDirection() {
         return direction;
+    }
+
+    public void onCollision(GameObject other, Game game) {
+        if (other instanceof Bullet b && b.getOwnerID() != id) {
+            game.remove(this);
+        }
     }
 }

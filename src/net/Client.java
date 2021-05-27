@@ -1,3 +1,8 @@
+package net;
+
+import game.GameObject;
+import swing.GamePainter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -10,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Client {
-    volatile private static List<GameObject> data= Collections.emptyList();
+     private static List<GameObject> data= Collections.emptyList();
     public static void main() throws IOException {
         var frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -57,18 +62,12 @@ public class Client {
             while (true) {
                 try {
                     data = (List<GameObject>) ois.readObject();
-                    data.stream().map(o->o.x).forEach(System.out::println);
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                     return;
-                }
-                try {
-                    Thread.sleep(16);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
         });

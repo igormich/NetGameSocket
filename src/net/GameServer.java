@@ -1,3 +1,8 @@
+package net;
+
+import game.Game;
+import game.Player;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -37,8 +42,8 @@ public class GameServer {
                 try {
                     var tank = new Player(game);
                     do {
-                        tank.x = r.nextInt(1000);
-                        tank.y = r.nextInt(1000);
+                        tank.setX(r.nextInt(1000));
+                        tank.setY(r.nextInt(1000));
                     } while (game.getAllObject().stream().allMatch(o -> !o.checkCollision(tank)));
                     id = tank.getID();
                     game.add(tank);
@@ -68,7 +73,6 @@ public class GameServer {
                     reader.start();
                     while (true) {
                         var data = game.getAllObject();
-                        data.stream().map(o->o.x).forEach(System.out::println);
                         oos.writeObject(data);
                         oos.flush();
                         oos.reset();
